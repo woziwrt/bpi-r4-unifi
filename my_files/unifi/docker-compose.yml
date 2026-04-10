@@ -1,0 +1,42 @@
+services:
+  unifi-network:
+    image: lscr.io/linuxserver/unifi-network-application:latest
+    container_name: unifi-network
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=Europe/Prague
+      - MONGO_USER=unifi
+      - MONGO_PASS=unifipass
+      - MONGO_HOST=unifi-db
+      - MONGO_PORT=27017
+      - MONGO_DBNAME=unifi
+      - MONGO_AUTHSOURCE=admin
+    volumes:
+      - /mnt/nvme0n1p3/unifi-network/config:/config
+    ports:
+      - 8443:8443
+      - 3478:3478/udp
+      - 8080:8080
+      - "127.0.0.1:10001:10001/udp"
+    depends_on:
+      unifi-db:
+        condition: service_healthy
+    restart: unless-stopped
+
+  unifi-db:
+    image: mongo:4.4.18
+    container_name: unifi-db
+    environment:
+      - MONGO_INITDB_ROOT_USERNAME=root
+      - MONGO_INITDB_ROOT_PASSWORD=rootpass
+    volumes:
+      - /mnt/nvme0n1p3/unifi-network/db:/data/db
+      - /mnt/nvme0n1p3/unifi-network/init-mongo.js:/docker-entrypoint-initdb.d/init-mongo.js:ro
+    healthcheck:
+      test: ["CMD", "mongo", "--eval", "db.adminCommand('ping')"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+    restart: unless-stopped

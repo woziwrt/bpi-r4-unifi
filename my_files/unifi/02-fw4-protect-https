@@ -1,0 +1,8 @@
+#!/bin/sh
+uci add firewall.protect_https=rule
+uci set firewall.protect_https.name='Allow-Protect-HTTPS'
+uci set firewall.protect_https.src='lan'
+uci set firewall.protect_https.dest_port='443'
+uci set firewall.protect_https.proto='tcp'
+uci set firewall.protect_https.target='ACCEPT'
+uci commit firewall && fw4 reload
