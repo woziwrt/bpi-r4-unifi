@@ -117,7 +117,7 @@ jobs:
 
             Repository commit: ${{ github.event.inputs.repo_commit || github.sha }}
 
-	    See README for installation instructions.
+            See README for installation instructions.
           files: |
             my_files/bpi-r4-install/sd-rescue.img.gz
             openwrt/bin/targets/mediatek/filogic/openwrt-mediatek-filogic-bananapi_bpi-r4-nvme-img.bin
