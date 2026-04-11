@@ -18,14 +18,22 @@ cp /etc/unifi/init-mongo.js $NVME/unifi-network/init-mongo.js
 cp /etc/unifi/system.properties $NVME/unifi-network/config/data/system.properties
 cp /etc/unifi/docker-compose.yml $NVME/unifi-network/docker-compose.yml
 
-# fw4 pravidla
-uci add_list firewall.docker.device='br-+'
-uci add firewall.protect_adoption=rule
-uci set firewall.protect_adoption.name='Allow-Protect-Adoption'
-uci set firewall.protect_adoption.src='lan'
-uci set firewall.protect_adoption.dest_port='7442 7444 7550'
-uci set firewall.protect_adoption.proto='tcp'
-uci set firewall.protect_adoption.target='ACCEPT'
+# fw4 - protect ports
+uci -q delete firewall.protect_adoption
+SECTION=$(uci add firewall rule)
+uci set firewall.$SECTION.name='Allow-Protect-Adoption'
+uci set firewall.$SECTION.src='lan'
+uci set firewall.$SECTION.dest_port='7442 7444 7550'
+uci set firewall.$SECTION.proto='tcp'
+uci set firewall.$SECTION.target='ACCEPT'
+
+uci -q delete firewall.protect_https
+SECTION=$(uci add firewall rule)
+uci set firewall.$SECTION.name='Allow-Protect-HTTPS'
+uci set firewall.$SECTION.src='lan'
+uci set firewall.$SECTION.dest_port='443'
+uci set firewall.$SECTION.proto='tcp'
+uci set firewall.$SECTION.target='ACCEPT'
 uci commit firewall && fw4 reload
 
 # Start Network stack
@@ -61,4 +69,4 @@ IP=$(uci get network.lan.ipaddr | cut -d'/' -f1)
 echo ""
 echo "? UniFi Network: https://$IP:8443"
 echo "? UniFi Protect: https://$IP"
-echo "? Camera IP:     cat /tmp/dhcp.leases"
+echo "? Camera leases: $(cat /tmp/dhcp.leases)"

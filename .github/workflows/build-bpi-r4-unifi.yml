@@ -117,11 +117,7 @@ jobs:
 
             Repository commit: ${{ github.event.inputs.repo_commit || github.sha }}
 
-            ## Installation
-            1. Flash `sd-rescue.img` to SD card
-            2. DIP › SD, power on, wait
-            3. DIP › NAND, reboot, wait ~10 min
-            4. Open https://192.168.1.1:8443
+	    See README for installation instructions.
           files: |
             my_files/bpi-r4-install/sd-rescue.img.gz
             openwrt/bin/targets/mediatek/filogic/openwrt-mediatek-filogic-bananapi_bpi-r4-nvme-img.bin
