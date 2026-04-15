@@ -1,8 +1,0 @@
-#!/bin/sh
-SECTION=$(uci add firewall rule)
-uci set firewall.$SECTION.name='Allow-Protect-HTTPS'
-uci set firewall.$SECTION.src='lan'
-uci set firewall.$SECTION.dest_port='443'
-uci set firewall.$SECTION.proto='tcp'
-uci set firewall.$SECTION.target='ACCEPT'
-uci commit firewall && fw4 reload

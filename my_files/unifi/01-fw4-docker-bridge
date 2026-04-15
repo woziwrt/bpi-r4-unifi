@@ -1,3 +1,0 @@
-#!/bin/sh
-uci add_list firewall.docker.device='br-+'
-uci commit firewall && fw4 reload

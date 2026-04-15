@@ -42,22 +42,6 @@ uci set system.@system[0].hostname='BPI-R4-UniFi'
 uci commit system
 EOF
 
-\cp ../my_files/unifi/01-fw4-docker-bridge files/etc/uci-defaults/
-chmod +x files/etc/uci-defaults/01-fw4-docker-bridge
-\cp ../my_files/unifi/02-fw4-protect-https files/etc/uci-defaults/
-chmod +x files/etc/uci-defaults/02-fw4-protect-https
-
-# UniFi setup skript 
-mkdir -p files/root
-\cp ../my_files/unifi/unifi-setup.sh files/root/
-chmod +x files/root/unifi-setup.sh
-
-# UniFi config files baked into image
-mkdir -p files/etc/unifi
-\cp ../my_files/unifi/init-mongo.js files/etc/unifi/
-\cp ../my_files/unifi/system.properties files/etc/unifi/
-\cp ../my_files/unifi/docker-compose.yml files/etc/unifi/
-
 mkdir -p files/etc
 \cp ../my_files/fw_env.config files/etc/
 
