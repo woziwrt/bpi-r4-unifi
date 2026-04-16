@@ -1,23 +1,34 @@
+# BPI-R4 UniFi Stack on OpenWrt
 
-# BPI-R4 UniFi Protect on OpenWrt
+Run **UniFi Protect** and **UniFi Network Application** on a **Banana Pi R4** router — a cost-effective alternative to the Ubiquiti UNVR + Cloud Gateway combo.
 
-Run **UniFi Protect** on a **Banana Pi R4** router as a cost-effective alternative to the Ubiquiti UNVR network video recorder.
+This project provides a fully automated installation chain — from a blank device to a working UniFi stack with live camera feed and managed WiFi — without any manual configuration. Everything is scripted and downloads automatically from this repository's releases.
 
-This project provides a fully automated installation chain — from a blank device to a working UniFi Protect system with live camera feed — without any manual configuration. Everything is scripted and downloads automatically from this repository's releases.
-
-> **Tested hardware:** Banana Pi R4 (MediaTek MT7988A) · UniFi G5 Flex camera  
+> **Tested hardware:** Banana Pi R4 rev 1.0 (MediaTek MT7988A) · UniFi G5 Flex camera · UniFi U7-LR WiFi 7 AP  
 > **Minimum NVMe disk size:** 500 GB (1 TB recommended for Continuous Recording)
 
 ---
 
 ## What you need
 
-- Banana Pi R4
+- Banana Pi R4 (rev 1.2+ recommended — see [Hardware Notes](#hardware-notes))
 - NVMe SSD, minimum 500 GB (installed in the BPI-R4 M.2 slot)
 - microSD card (temporary, 1 GB or larger)
 - Ethernet cable (internet access required during installation)
-- A free [Ubiquiti account](https://account.ui.com) (required for Remote Access and camera adoption)
+- A free [Ubiquiti account](https://account.ui.com) (required for Remote Access and device adoption)
 - UniFi camera (G5 Flex tested)
+- UniFi Access Point (U7-LR WiFi 7 tested)
+- PoE switch or injector for the AP
+
+---
+
+## What you get
+
+| Service | Address |
+|---------|---------|
+| UniFi Protect | `https://192.168.1.1` |
+| UniFi Network Application | `https://192.168.1.2:8443` |
+| LuCI | `http://192.168.1.1:8081` |
 
 ---
 
@@ -49,7 +60,7 @@ sh install-nand.sh
 8. Connect an ethernet cable with internet access.
 9. Power on the device.
 
-### Step 3 — Install OpenWrt + UniFi Protect to NVMe
+### Step 3 — Install OpenWrt + UniFi stack to NVMe
 
 1. Open a browser and go to `http://192.168.1.1` (LuCI).
 2. Navigate to **Services → Terminal**.
@@ -84,6 +95,21 @@ sh unifi-setup.sh
 4. When prompted, **disconnect the internet cable** (required for first-time Protect setup), then press **Enter**.
 5. Wait for setup to complete (~1–2 minutes).
 
+### Step 5 — Run UniFi Network Application setup
+
+1. In the same terminal, run:
+
+```sh
+cd /mnt/nvme0n1p3
+sh unifi-network-setup.sh
+```
+
+2. The script will:
+   - Move LuCI to port 8081 (freeing 8080 for Network Application)
+   - Set up the `enp0s3` macvlan interface at `192.168.1.2`
+   - Configure nftables firewall rules
+   - Pull and start the Network Application containers
+
 ---
 
 ## First-time Protect configuration
@@ -94,55 +120,127 @@ sh unifi-setup.sh
 4. Enter a name for your console (e.g. `BPI-R4-UniFi`) and click **Next**.
 5. Set a password and click **Finish**.
 6. Wait for **Setup Complete!** and click **Go to Dashboard**.
-7. Accept the SSL warning again if prompted and log in with your password.
 
 ### Immediately after first login — disable auto-updates
 
-Go to **Settings (gear icon) → General → Software Updates** and disable:
-- **UNVR** auto-update
-- **Protect** application auto-update
-- **Device** auto-update
+Go to **Settings (gear icon) → General → Software Updates** and disable all auto-update options.
 
 > Leaving auto-update enabled risks breaking your installation with an incompatible version.
 
-### Enable Remote Access (optional)
+---
 
-1. Connect the internet cable.
-2. Go to **Settings → Console → Remote Access** and enable it.
-3. Log in with your Ubiquiti account and complete 2FA verification.
+## First-time Network Application configuration
 
-### Disable notifications (recommended)
-
-Protect sends push notifications and emails for every action by default. To disable:
-
-1. Go to **Settings → Control Plane → Push Notifications**.
-2. Turn off all blue toggles.
-3. Follow the link **"For Protect Application push notifications, go here"** and turn off all blue toggles there as well.
+1. Open `https://192.168.1.2:8443` in your browser.
+2. Accept the SSL warning.
+3. Complete the setup wizard.
+4. Go to **Settings → System** and disable auto-updates.
 
 ---
 
 ## Adding a camera
 
-1. Connect the camera via ethernet and power it on.
-2. Perform a hardware reset by pressing and holding the reset button on the camera.
-3. In the Protect dashboard, click the **camera icon** in the left sidebar (**Devices**).
-4. Wait for the camera to appear in the device list, then click **Adopt this Device**.
-5. The camera status dot will turn from orange to green — camera is online.
-6. Click the **Playback icon** in the left sidebar to view the live feed.
+1. Connect the camera via ethernet to a LAN port and power it on.
+2. Perform a hardware reset (hold reset button until LED changes).
+3. In the Protect dashboard → **Devices** — the camera should appear and can be adopted.
+4. Camera status dot turns green — camera is online.
+
+---
+
+## Adopting an Access Point
+
+After factory reset, the AP will not auto-discover the Network Application. Use SSH set-inform:
+
+```sh
+ssh ubnt@<AP_IP> "/usr/bin/syswrapper.sh set-inform http://192.168.1.2:8080/inform"
+```
+
+Default credentials after factory reset: `ubnt` / `ubnt`
+
+Once adopted, the AP remembers the controller address and reconnects automatically after reboots.
+
+> **Note:** DHCP option 43 is not required and is ignored by recent UniFi firmware.
 
 ---
 
 ## After reboot
 
-UniFi Protect starts automatically on every boot. No manual steps required.
+UniFi Protect starts automatically on every boot via `rc.local`.
+
+For UniFi Network Application autostart, add `rc-network.sh` to `rc.local`:
+
+```sh
+echo "/mnt/nvme0n1p3/rc-network.sh &" >> /etc/rc.local
+```
+
+---
+
+## Hardware Notes
+
+### BPI-R4 rev 1.0 known issues
+
+| Issue | Details |
+|-------|---------|
+| NVMe + SFP conflict | Some NVMe disks pull down the I2C bus, disabling SFP ports and other I2C devices |
+| Affected disks | Chinese OEM NVMe drives (e.g. generic 128 GB) |
+| Not affected | Samsung EVO series — SFP ports remain functional |
+| Fixed in | Rev 1.2+ — Sinovoip resolved the I2C/NVMe conflict in hardware |
+
+### Recommended hardware for development
+
+For new builds, the **BPI-R4 with 8 GB RAM** (rev 1.2+) is recommended:
+
+- NVMe and SFP ports work simultaneously
+- 8 GB RAM provides more headroom for Docker workloads
+- Available from [youyeetoo.com](https://www.youyeetoo.com/products/bpi-r4) — select the 8 GB variant
+- The BE14 WiFi card from the 4 GB board is physically compatible
+
+### LAN ports
+
+| Port | Status |
+|------|--------|
+| lan1 | Functional |
+| lan2 | Functional |
+| lan3 | NO-CARRIER on some rev 1.0 boards (hardware fault) — functional on rev 1.2+ |
+| sfp-lan | Functional with Samsung EVO; blocked by some Chinese NVMe disks on rev 1.0 |
+
+> **Note:** Without a switch, you can only connect either a camera or an AP to the available LAN ports at the same time. A cheap Mikrotik or any unmanaged switch solves this.
+
+---
+
+## Architecture
+
+This project deliberately separates responsibilities:
+
+- **BPI-R4** — routing, firewall, Docker runtime, NVMe storage
+- **UniFi Protect** — camera management (via [dciancu](https://github.com/dciancu/unifi-protect-unvr-docker-arm64) Docker image)
+- **UniFi Network Application** — WiFi management (via linuxserver Docker image)
+- **UniFi AP** — professional WiFi (U7-LR WiFi 7 tested)
+
+This avoids the known signal/noise issues of the BPI-R4's onboard BE14 WiFi module while delivering enterprise-grade WiFi through a proper UniFi AP.
+
+---
+
+## NVMe Partition Layout
+
+| Partition | Size | Purpose |
+|-----------|------|---------|
+| p1 | 255 MB | Boot |
+| p2 | 448 MB | Root filesystem |
+| p3 | 30 GB (dev) / 15 GB (prod) | Docker data |
+| p4 | remainder | Protect storage |
 
 ---
 
 ## Notes
 
-- LuCI web interface is available at `http://192.168.1.1:8080` (moved from port 80 to avoid conflict with Protect)
 - UniFi Protect web interface: `https://192.168.1.1`
-- Continuous Recording requires the NVMe protect partition (p4) to be at least 100 GB — guaranteed with a 500 GB+ disk
-- This project is based on the Docker image by [dciancu](https://github.com/dciancu/unifi-protect-unvr-docker-arm64)---
+- UniFi Network Application: `https://192.168.1.2:8443`
+- LuCI web interface: `http://192.168.1.1:8081`
+- Continuous Recording requires the Protect partition (p4) to be at least 100 GB
+
+---
 
 *This project is not affiliated with Ubiquiti Inc. in any way.*
+
+*🍌 TEAM WOZIWRT+CLAUDE*
