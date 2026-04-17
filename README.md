@@ -226,6 +226,28 @@ This avoids the known signal/noise issues of the BPI-R4's onboard BE14 WiFi modu
 
 ---
 
+<img width="1264" height="1080" alt="Snímek obrazovky 2026-04-16 v 13 46 09" src="https://github.com/user-attachments/assets/1483d00f-839a-4ced-b899-6d688e0483a7" />
+
+<img width="1264" height="1080" alt="Snímek obrazovky 2026-04-16 v 13 47 59" src="https://github.com/user-attachments/assets/f912c22e-a31c-42e6-8fc7-34e1632a8bc7" />
+
+<img width="1264" height="1080" alt="Snímek obrazovky 2026-04-16 v 13 43 29" src="https://github.com/user-attachments/assets/ae709b45-ad2a-44ff-ab7b-73b9d5f1d6d9" />
+
+<img width="1264" height="1080" alt="Snímek obrazovky 2026-04-16 v 14 08 39" src="https://github.com/user-attachments/assets/b6ce49af-bd91-4a67-87b2-c77ee121f051" />
+
+<img width="1264" height="1080" alt="Snímek obrazovky 2026-04-16 v 13 45 12" src="https://github.com/user-attachments/assets/5c891a7c-017c-400d-8078-99850ccb86b8" />
+
+<img width="660" height="1434" alt="IMG_7371" src="https://github.com/user-attachments/assets/aac7b973-ccdf-469f-b027-d8755032469c" />
+
+<img width="660" height="1434" alt="IMG_7368 2" src="https://github.com/user-attachments/assets/a703787d-9e16-4195-b495-65b1b4334ca6" />
+
+<img width="660" height="1434" alt="IMG_7372" src="https://github.com/user-attachments/assets/3cc43eb4-89cc-4f1d-be6c-9ded25f12f07" />
+
+<img width="660" height="1434" alt="IMG_7375" src="https://github.com/user-attachments/assets/be266889-b238-4aba-b3b7-53dba31d7e86" />
+
+
+
+
+
 *This project is not affiliated with Ubiquiti Inc. in any way.*
 
 *🍌 TEAM WOZIWRT+CLAUDE*
