@@ -123,7 +123,7 @@ sh unifi-network-setup.sh
 
 ### Immediately after first login — disable auto-updates
 
-Go to **Settings (gear icon) → General → Software Updates** and disable all auto-update options.
+Go to **Settings (gear icon) → Control Plane → Updates** and set Off all Auto-Update options.
 
 > Leaving auto-update enabled risks breaking your installation with an incompatible version.
 
@@ -153,9 +153,11 @@ After factory reset, the AP will not auto-discover the Network Application. Use 
 
 ```sh
 ssh ubnt@<AP_IP> "/usr/bin/syswrapper.sh set-inform http://192.168.1.2:8080/inform"
-```
 
-Default credentials after factory reset: `ubnt` / `ubnt`
+```
+ <AP_IP> you can see in LuCI: http://192.168.1.1:8081 → Network → DHCP Leases
+ 
+ Default credentials after factory reset: `ubnt` / `ubnt`
 
 Once adopted, the AP remembers the controller address and reconnects automatically after reboots.
 
@@ -167,7 +169,7 @@ Once adopted, the AP remembers the controller address and reconnects automatical
 
 Both UniFi Protect and UniFi Network Application start automatically on every boot.
 
-> **Note:** After a cold boot, allow approximately 10 minutes for both services to fully initialize. UniFi Protect is available first (~3 minutes), followed by UniFi Network Application (~8–10 minutes).
+> **Note:** After a cold boot, allow approximately 10 minutes for both services to fully initialize. UniFi Protect is available first (~3 minutes), followed by UniFi Network Application (~8–10 minutes) - required for rgistration and intialization on UniFi cloud and their servers.
 
 ---
 
