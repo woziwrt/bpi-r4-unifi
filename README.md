@@ -2,7 +2,7 @@
 
 Run **UniFi Protect** and **UniFi Network Application** on a **Banana Pi R4** router — a cost-effective alternative to the Ubiquiti UNVR + Cloud Gateway combo.
 
-This project provides a fully automated installation chain — from a blank device to a working UniFi stack with live camera feed and managed WiFi — without any manual configuration. Everything is scripted and downloads automatically from this repository's releases.
+This project provides a scripted installation chain — from a blank device to a working UniFi stack with live camera feed and managed WiFi. All required files are downloaded automatically from this repository's releases.
 
 > **Tested hardware:** Banana Pi R4 rev 1.0 (MediaTek MT7988A) · UniFi G5 Flex camera · UniFi U7-LR WiFi 7 AP  
 > **Minimum NVMe disk size:** 500 GB (1 TB recommended for Continuous Recording)
@@ -15,7 +15,7 @@ This project provides a fully automated installation chain — from a blank devi
 - NVMe SSD, minimum 500 GB (installed in the BPI-R4 M.2 slot)
 - microSD card (temporary, 1 GB or larger)
 - Ethernet cable (internet access required during installation)
-- A free [Ubiquiti account](https://account.ui.com) (required for Remote Access and device adoption)
+- A [Ubiquiti account](https://account.ui.com) (optional — required only for Remote Access)
 - UniFi camera (G5 Flex tested)
 - UniFi Access Point (U7-LR WiFi 7 tested)
 - PoE switch or injector for the AP
@@ -165,13 +165,9 @@ Once adopted, the AP remembers the controller address and reconnects automatical
 
 ## After reboot
 
-UniFi Protect starts automatically on every boot via `rc.local`.
+Both UniFi Protect and UniFi Network Application start automatically on every boot.
 
-For UniFi Network Application autostart, add `rc-network.sh` to `rc.local`:
-
-```sh
-echo "/mnt/nvme0n1p3/rc-network.sh &" >> /etc/rc.local
-```
+> **Note:** After a cold boot, allow approximately 10 minutes for both services to fully initialize. UniFi Protect is available first (~3 minutes), followed by UniFi Network Application (~8–10 minutes).
 
 ---
 
@@ -194,17 +190,6 @@ For new builds, the **BPI-R4 with 8 GB RAM** (rev 1.2+) is recommended:
 - 8 GB RAM provides more headroom for Docker workloads
 - Available from [youyeetoo.com](https://www.youyeetoo.com/products/bpi-r4) — select the 8 GB variant
 - The BE14 WiFi card from the 4 GB board is physically compatible
-
-### LAN ports
-
-| Port | Status |
-|------|--------|
-| lan1 | Functional |
-| lan2 | Functional |
-| lan3 | NO-CARRIER on some rev 1.0 boards (hardware fault) — functional on rev 1.2+ |
-| sfp-lan | Functional with Samsung EVO; blocked by some Chinese NVMe disks on rev 1.0 |
-
-> **Note:** Without a switch, you can only connect either a camera or an AP to the available LAN ports at the same time. A cheap Mikrotik or any unmanaged switch solves this.
 
 ---
 
