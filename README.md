@@ -171,6 +171,25 @@ Both UniFi Protect and UniFi Network Application start automatically on every bo
 
 ---
 
+## WAN Reconnect
+
+When the WAN interface goes down and comes back up (ISP outage, cable reconnect), OpenWrt performs a `fw4 reload` which clears the custom nftables rules required by the Docker bridge network. This causes the **UniFi Network Application to lose connectivity** until the rules are restored — a reboot fixes it, but that is not always practical.
+
+To restore the rules automatically on every WAN reconnect, install the provided hotplug hook:
+
+1. Download `99-docker-nft` from the [Releases](../../releases) page.
+2. Copy it to the router:
+
+```sh
+scp -P 2222 99-docker-nft root@192.168.1.1:/etc/hotplug.d/iface/99-docker-nft
+chmod +x /etc/hotplug.d/iface/99-docker-nft
+``
+
+The hook fires on every WAN `ifup` event, waits 3 seconds for the bridge to stabilize, and re-runs `rc-network.sh`.
+
+> **Note:** UniFi Protect is not affected — it runs with `--network host` and does not depend on bridge nftables rules.
+
+---
 ## Hardware Notes
 
 ### BPI-R4 rev 1.0 known issues
@@ -188,8 +207,6 @@ For new builds, the **BPI-R4 with 8 GB RAM** (rev 1.2+) is recommended:
 
 - NVMe and SFP ports work simultaneously
 - 8 GB RAM provides more headroom for Docker workloads
-- Available from [youyeetoo.com](https://www.youyeetoo.com/products/bpi-r4) — select the 8 GB variant
-- The BE14 WiFi card from the 4 GB board is physically compatible
 
 ---
 

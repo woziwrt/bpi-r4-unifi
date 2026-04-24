@@ -45,6 +45,10 @@ EOF
 mkdir -p files/etc
 \cp ../my_files/fw_env.config files/etc/
 
+mkdir -p files/etc/hotplug.d/iface
+\cp ../my_files/99-docker-nft files/etc/hotplug.d/iface/
+chmod +x files/etc/hotplug.d/iface/99-docker-nft
+
 ./scripts/feeds update -a
 ./scripts/feeds install -a
 
