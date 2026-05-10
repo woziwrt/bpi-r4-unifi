@@ -20,11 +20,16 @@ After: 256MB
 
 ### 2. Docker memory limits
 
-Added `mem_limit: 1g` to both unifi-network and unifi-db containers.
+Initially set `mem_limit: 1g` to both unifi-network and unifi-db containers.
+After observation, unifi-network was hitting 99.87% of 1GB limit causing
+Java GC loop and 101% CPU. Increased to `mem_limit: 1536m` (1.5GB).
 
-This prevents any single container from consuming more than 1GB RAM.
-Total budget for network stack: 2GB
-Remaining for UniFi Protect: ~2GB
+Current limits:
+- unifi-network: 1536m (Java heap has room to breathe)
+- unifi-db: 1536m (headroom, actual usage ~70-90MB)
+- unifi-protect: no explicit limit (~3.8GB available)
+
+Result after change: unifi-network at ~40% mem, CPU normalized.
 
 ### 3. Swap file on NVMe
 
@@ -58,5 +63,7 @@ and allows proper swap accounting per container.
 
 ## Status
 
-Deployed 2026-04-26. Monitoring in progress — results expected after several days
-of uptime. If stable, integrate swapfile setup into install script.
+Deployed 2026-04-26. mem_limit increased to 1536m same day after observing
+unifi-network hitting 1GB ceiling. Monitoring in progress — results expected
+after several days of uptime. If stable, integrate swapfile setup into install
+script.
